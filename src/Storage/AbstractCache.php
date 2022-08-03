@@ -325,6 +325,11 @@ abstract class AbstractCache implements CacheInterface
      */
     public function cleanContents(array $contents)
     {
+        $md5CleanedContent = md5($contents);
+        if (isset($this->cleanedContent[$md5CleanedContent])) {
+            return $this->cleanedContent[$md5CleanedContent];
+        }
+
         $cachedProperties = array_flip([
             'path', 'dirname', 'basename', 'extension', 'filename',
             'size', 'mimetype', 'visibility', 'timestamp', 'type',
@@ -336,7 +341,7 @@ abstract class AbstractCache implements CacheInterface
                 $contents[$path] = array_intersect_key($object, $cachedProperties);
             }
         }
-
+        $this->cleanedContent[$md5CleanedContent] = $contents;
         return $contents;
     }
 
@@ -367,9 +372,14 @@ abstract class AbstractCache implements CacheInterface
      */
     public function getForStorage()
     {
-        $cleaned = $this->cleanContents($this->cache);
+        $cleaned             = $this->cleanContents($this->cache);
+        $md5Encoded          = md5([$cleaned, $this->complete]);
+        if (!isset($this->encoded[$md5Encoded])) {
+            $this->encoded[$md5Encoded] = json_encode([$cleaned, $this->complete]);
+        }
 
-        return json_encode([$cleaned, $this->complete]);
+
+        return $this->encoded[$md5Encoded];
     }
 
     /**
