@@ -7,6 +7,8 @@ use League\Flysystem\Util;
 
 abstract class AbstractCache implements CacheInterface
 {
+    protected $encoded = [];
+    protected $cleanedContent = [];
     /**
      * @var bool
      */
