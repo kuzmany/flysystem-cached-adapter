@@ -327,7 +327,7 @@ abstract class AbstractCache implements CacheInterface
      */
     public function cleanContents(array $contents)
     {
-        $md5CleanedContent = md5($contents);
+        $md5CleanedContent = $this->getMd5($contents);
         if (isset($this->cleanedContent[$md5CleanedContent])) {
             return $this->cleanedContent[$md5CleanedContent];
         }
@@ -375,7 +375,7 @@ abstract class AbstractCache implements CacheInterface
     public function getForStorage()
     {
         $cleaned             = $this->cleanContents($this->cache);
-        $md5Encoded          = md5([$cleaned, $this->complete]);
+        $md5Encoded          = $this->getMd5([$cleaned, $this->complete]);
         if (!isset($this->encoded[$md5Encoded])) {
             $this->encoded[$md5Encoded] = json_encode([$cleaned, $this->complete]);
         }
@@ -391,7 +391,7 @@ abstract class AbstractCache implements CacheInterface
      */
     public function setFromStorage($json)
     {
-        list($cache, $complete) = json_decode($json, true);
+        [$cache, $complete] = json_decode($json, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($cache) && is_array($complete)) {
             $this->cache = $cache;
@@ -426,5 +426,14 @@ abstract class AbstractCache implements CacheInterface
     protected function pathIsInDirectory($directory, $path)
     {
         return $directory === '' || strpos($path, $directory . '/') === 0;
+    }/**
+ * @param array $contents
+ *
+ * @return string
+ */
+    protected function getMd5(array $contents): ?string
+    {
+        return null;
+        return md5(($contents));
     }
 }
